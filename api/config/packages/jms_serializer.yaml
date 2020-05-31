@@ -1,0 +1,10 @@
+#JMS Serializer
+jms_serializer:
+  metadata:
+    directories:
+      KnpPaginatorBundle:
+        namespace_prefix: Knp\Bundle\PaginatorBundle
+        path: '%kernel.project_dir%/config/serializer/KnpPaginatorBundle'
+      KnpPager:
+        namespace_prefix: Knp\Component\Pager
+        path: '%kernel.project_dir%/config/serializer/KnpPager'

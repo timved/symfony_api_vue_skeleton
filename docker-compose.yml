@@ -1,0 +1,31 @@
+version: '3'
+
+services:
+  api_nginx:
+    build: containers/nginx
+    network_mode: host
+    volumes:
+      - ./api:/var/www/backend
+    ports:
+      - 80:80
+    command: nginx -g 'daemon off;'
+  api_postgres:
+    image: postgres:11
+    ports:
+      - 5432:5432
+    volumes:
+      - ./data/db/postgres:/var/lib/postgresql
+    environment:
+      POSTGRES_DB: postgres
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: example
+    command: postgres
+  api_php:
+    build: containers/php
+    volumes:
+      - ./api:/var/www/backend
+    command: php-fpm7.2 -F
+    ports:
+      - 9072:9072
+    depends_on:
+      - api_postgres
