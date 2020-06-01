@@ -1,4 +1,4 @@
-import axios from 'axios'
+import UserApi from '../../services/UserApi'
 
 export default {
   state: {
@@ -47,18 +47,15 @@ export default {
     }
   },
   actions: {
-    LOGIN: ({ commit }, payload) => {
+    LOGIN: (context, payload) => {
       return new Promise((resolve, reject) => {
-        axios.post(`login_check`, payload)
-          .then(({ data, status }) => {
-            console.log(data)
-            console.log(status)
-            if (status === 200 || status === 204) {
-              commit('SET_EMAIL', payload.email)
+        UserApi.login(payload)
+          .then(response => {
+            if (response.status === 200 || response.status === 204) {
+              context.commit('SET_EMAIL', payload.email)
               resolve(true)
             }
-          })
-          .catch(error => {
+          }).catch(error => {
             console.log(error)
             reject(error)
           })
@@ -66,73 +63,71 @@ export default {
     },
     USER_INFO: (context) => {
       return new Promise((resolve, reject) => {
-        axios.post(`user/info`, context.state)
-          .then(({ data, status }) => {
-            if (status === 200) {
-              context.commit('SET_USER_ID', data.id)
-              context.commit('SET_USERNAME', data.login)
-              context.commit('SET_FIO', data.fio)
-              context.commit('SET_SUBJECT', data.subject)
+        UserApi.infoUser(context.state)
+          .then(response => {
+            if (response.status === 200) {
+              context.commit('SET_USER_ID', response.data.id)
+              context.commit('SET_USERNAME', response.data.login)
+              context.commit('SET_FIO', response.data.fio)
+              context.commit('SET_SUBJECT', response.data.subject)
               resolve(true)
             }
-          })
-          .catch(error => {
+          }).catch(error => {
+            console.log(error)
             reject(error)
           })
       })
     },
     UPDATE_USER: (context, { login, fio, subject, password }) => {
       return new Promise((resolve, reject) => {
-        axios.post(`user/update/${context.getters.USER_ID}`, { login, fio, subject, password })
-          .then(({ data, status }) => {
-            if (status === 200) {
-              context.commit('SET_USERNAME', data.login)
-              context.commit('SET_FIO', data.fio)
-              context.commit('SET_SUBJECT', data.subject)
+        UserApi.updateUser(context.getters.USER_ID, { login, fio, subject, password })
+          .then(response => {
+            if (response.status === 200) {
+              context.commit('SET_USERNAME', response.data.login)
+              context.commit('SET_FIO', response.data.fio)
+              context.commit('SET_SUBJECT', response.data.subject)
               resolve(true)
             }
-          })
-          .catch(error => {
+          }).catch(error => {
+            console.log(error)
             reject(error)
           })
       })
     },
-    LOGOUT (context) {
+    LOGOUT: (context) => {
       return new Promise((resolve, reject) => {
-        axios.post(`logout`, context.state)
-          .then(({ status }) => {
-            if (status === 200) {
+        UserApi.logout(context.state)
+          .then(response => {
+            if (response.status === 200) {
               context.commit('logout')
               resolve(true)
             }
-          })
-          .catch(error => {
+          }).catch(error => {
+            console.log(error)
             reject(error)
           })
       })
     },
-    REGISTER: ({ commit }, { login, email, fio, subject }) => {
+    REGISTER: (context, { login, email, fio, subject }) => {
       return new Promise((resolve, reject) => {
-        axios.post(`register`, {
-          login, email, fio, subject
-        })
-          .then(({ data, status }) => {
-            if (status === 201) {
+        UserApi.register({ login, email, fio, subject })
+          .then(response => {
+            if (response.status === 201) {
               resolve(true)
             }
-          })
-          .catch(error => {
+          }).catch(error => {
+            console.log(error)
             reject(error)
           })
       })
     },
     REFRESH_TOKEN: () => {
       return new Promise((resolve, reject) => {
-        axios.post(`token/refresh`)
+        UserApi.refreshToken()
           .then(response => {
             resolve(response)
-          })
-          .catch(error => {
+          }).catch(error => {
+            console.log(error)
             reject(error)
           })
       })
